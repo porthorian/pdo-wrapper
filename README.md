@@ -1,2 +1,2 @@
 # php-database
-A PDO Database Wrapper for ease access.
+A PDO Database Wrapper for ease of use.
