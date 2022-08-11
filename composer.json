@@ -1,0 +1,45 @@
+{
+    "name": "porthorian/php-database",
+    "description": "A PDO Database wrapper for ease of use.",
+    "type": "library",
+    "license": "MIT",
+    "keywords": [
+      "php", "database", "database-pdo", "pdo-wrapper", "database-iterator"
+    ],
+    "authors": [
+        {
+            "name": "Vinnie Marone",
+            "email": "vinnie.marone35@gmail.com"
+        }
+    ],
+    "minimum-stability": "stable",
+    "require": {
+        "ext-pdo": "*",
+        "php": "^8.0"
+    },
+    "require-dev": {
+        "phpunit/phpunit": "^9.5",
+        "squizlabs/php_codesniffer": "^3.6",
+        "slevomat/coding-standard": "^7.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "Porthorian\\PhpDatabase\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Porthorian\\PhpDatabase\\Tests\\": "tests/"
+        }
+    },
+    "scripts": {
+        "test": "vendor/bin/phpunit",
+        "lint": "vendor/bin/phpcs --extensions=php -s",
+        "beautify": "vendor/bin/phpcbf --extensions=php -v"
+    },
+    "config": {
+        "allow-plugins": {
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    }
+}
