@@ -24,12 +24,12 @@
     },
     "autoload": {
         "psr-4": {
-            "Porthorian\\PhpDatabase\\": "src/"
+            "Porthorian\\PDOWrapper\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Porthorian\\PhpDatabase\\Tests\\": "tests/"
+            "Porthorian\\PDOWrapper\\Tests\\": "tests/"
         }
     },
     "scripts": {
