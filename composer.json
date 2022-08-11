@@ -1,5 +1,5 @@
 {
-    "name": "porthorian/php-database",
+    "name": "porthorian/pdo-wrapper",
     "description": "A PDO Database wrapper for ease of use.",
     "type": "library",
     "license": "MIT",
