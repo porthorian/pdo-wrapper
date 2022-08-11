@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Porthorian\PDOWrapper\Models;
 
 class DatabaseModel

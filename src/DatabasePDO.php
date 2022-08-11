@@ -11,7 +11,6 @@ use Porthorian\PDOWrapper\Interfaces\QueryInterface;
 use Porthorian\PDOWrapper\DBPool;
 use Porthorian\PDOWrapper\Exception\DatabaseException;
 use Porthorian\PDOWrapper\Exception\InvalidConfigException;
-use Porthorian\PDOWrapper\Models\DBResult;
 use Porthorian\PDOWrapper\Models\QueryResult;
 
 class DatabasePDO implements DatabaseInterface
