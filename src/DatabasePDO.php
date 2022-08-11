@@ -31,7 +31,11 @@ class DatabasePDO implements DatabaseInterface
 	public function __construct(string $dbname, int $timeout = 1)
 	{
 		$this->dbname = $dbname;
-		if ($this->connectPDO($timeout) === false)
+		try
+		{
+			$this->connectPDO($timeout);
+		}
+		catch (DatabaseException)
 		{
 			$this->connectPDO($timeout + 2);
 		}
