@@ -27,7 +27,7 @@ class DBWrapper
 	* @param $database - The database you wanna execute this function on
 	* @return DBResult
 	*/
-	public static function PResult(string $sql, array $params = [], string $database = DEFAULT_DB) : DBResult
+	public static function PResult(string $sql, array $params = [], ?string $database = null) : DBResult
 	{
 		$pool = self::getDBPool($database);
 
@@ -43,7 +43,7 @@ class DBWrapper
 	* @param $database - The database you wanna execute this function on
 	* @return array
 	*/
-	public static function PExecute(string $sql, array $params = [], ?int &$out_count = 0, string $database = DEFAULT_DB) : array
+	public static function PExecute(string $sql, array $params = [], ?int &$out_count = 0, ?string $database = null) : array
 	{
 		$pool = self::getDBPool($database);
 
@@ -60,7 +60,7 @@ class DBWrapper
 	* @param $database - The database you wanna execute this function on
 	* @return array
 	*/
-	public static function PSingle(string $sql, array $params = [], ?int &$out_count = 0, string $database = DEFAULT_DB) : array
+	public static function PSingle(string $sql, array $params = [], ?int &$out_count = 0, ?string $database = null) : array
 	{
 		$pool = self::getDBPool($database);
 
@@ -76,7 +76,7 @@ class DBWrapper
 	* @param $database - The database you wanna execute this function on
 	* @return array
 	*/
-	public static function execute(string $sql, ?int &$out_count = 0, string $database = DEFAULT_DB) : array
+	public static function execute(string $sql, ?int &$out_count = 0, ?string $database = null) : array
 	{
 		$pool = self::getDBPool($database);
 
@@ -86,7 +86,7 @@ class DBWrapper
 		return $query->fetchAllResults();
 	}
 
-	public static function insert(string $table, array $params, &$last_insert_id = 0, string $database = DEFAULT_DB) : bool
+	public static function insert(string $table, array $params, &$last_insert_id = 0, ?string $database = null) : bool
 	{
 		$pool = self::getDBPool($database);
 
@@ -99,7 +99,7 @@ class DBWrapper
 		return true;
 	}
 
-	public static function update(string $table, array $set_params, array $where_params, string $database = DEFAULT_DB) : bool
+	public static function update(string $table, array $set_params, array $where_params, ?string $database = null) : bool
 	{
 		$pool = self::getDBPool($database);
 
@@ -114,7 +114,7 @@ class DBWrapper
 		return true;
 	}
 
-	public static function delete(string $table, array $where_params, string $database = DEFAULT_DB) : bool
+	public static function delete(string $table, array $where_params, ?string $database = null) : bool
 	{
 		$pool = self::getDBPool($database);
 
@@ -134,7 +134,7 @@ class DBWrapper
 	* @param $database - The database you wanna execute this function on
 	* @return bool
 	*/
-	public static function startTransaction(string $database = DEFAULT_DB) : bool
+	public static function startTransaction(?string $database = null) : bool
 	{
 		$pool = self::getDBPool($database);
 
@@ -146,7 +146,7 @@ class DBWrapper
 	* @param $database - The database you wanna execute this function on
 	* @return bool
 	*/
-	public static function commitTransaction(string $database = DEFAULT_DB) : bool
+	public static function commitTransaction(?string $database = null) : bool
 	{
 		$pool = self::getDBPool($database);
 
@@ -158,7 +158,7 @@ class DBWrapper
 	* @param $database - The database you wanna execute this function on
 	* @return bool
 	*/
-	public static function rollbackTransaction(string $database = DEFAULT_DB) : bool
+	public static function rollbackTransaction(?string $database = null) : bool
 	{
 		$pool = self::getDBPool($database);
 
@@ -167,7 +167,7 @@ class DBWrapper
 
 	public static function quote(string $value) : ?string
 	{
-		$pool = self::getDBPool(DEFAULT_DB);
+		$pool = self::getDBPool(null);
 
 		return $pool->quote($value);
 	}
@@ -176,7 +176,7 @@ class DBWrapper
 	{
 		if ($database === null)
 		{
-			$database = '';
+			$database = (DBPool::getPoolCreds()[0])?->getDBName();
 		}
 
 		$pool = DBPool::getDBI($database);
