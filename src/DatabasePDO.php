@@ -10,7 +10,6 @@ use \PDOException;
 use Porthorian\PDOWrapper\Interfaces\DatabaseInterface;
 use Porthorian\PDOWrapper\Interfaces\QueryInterface;
 use Porthorian\PDOWrapper\Exception\DatabaseException;
-use Porthorian\PDOWrapper\Exception\InvalidConfigException;
 use Porthorian\PDOWrapper\Models\QueryResult;
 use Porthorian\PDOWrapper\Models\DatabaseModel;
 

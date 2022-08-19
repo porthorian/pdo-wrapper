@@ -6,7 +6,6 @@ namespace Porthorian\PDOWrapper\Tests\Suite;
 
 use Porthorian\PDOWrapper\Tests\DBTest;
 use Porthorian\PDOWrapper\DBPool;
-use Porthorian\PDOWrapper\DBFactory;
 use Porthorian\PDOWrapper\Interfaces\DatabaseInterface;
 use Porthorian\PDOWrapper\Models\DatabaseModel;
 use Porthorian\PDOWrapper\Exception\DatabaseException;

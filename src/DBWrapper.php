@@ -5,7 +5,6 @@ declare(strict_types=1);
 namespace Porthorian\PDOWrapper;
 
 use Porthorian\PDOWrapper\Exception\InvalidConfigException;
-use Porthorian\PDOWrapper\Exception\DatabaseException;
 use Porthorian\PDOWrapper\Models\DBResult;
 use Porthorian\PDOWrapper\Interfaces\DatabaseInterface;
 use Porthorian\PDOWrapper\Interfaces\QueryInterface;
