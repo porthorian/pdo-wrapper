@@ -12,6 +12,8 @@ class DatabaseModel
 	protected string $password;
 	protected string $charset;
 
+	protected string $dsn;
+
 	public function __construct(string $dbname, string $host, string $user, string $password, string $charset = 'UTF8')
 	{
 		$this->setDBName($dbname);
@@ -19,6 +21,8 @@ class DatabaseModel
 		$this->setUser($user);
 		$this->setPassword($password);
 		$this->setCharset($charset);
+
+		$this->setDSN('mysql:host=' . $this->getHost() . ';dbname=' . $this->getDBName() . ';charset=' . $this->getCharset());
 	}
 
 	public function getDBName() : string
@@ -40,6 +44,10 @@ class DatabaseModel
 	public function getCharset() : string
 	{
 		return $this->charset;
+	}
+	public function getDSN() : string
+	{
+		return $this->dsn;
 	}
 
 	// Setters
@@ -63,9 +71,8 @@ class DatabaseModel
 	{
 		$this->charset = $charset;
 	}
-
-	public function getDSN() : string
+	public function setDSN(string $dsn) : void
 	{
-		return 'mysql:host=' . $database->getHost() . ';dbname=' . $database->getDBName() . ';charset=' . $database->getCharset();
+		$this->dsn = $dsn;
 	}
 }

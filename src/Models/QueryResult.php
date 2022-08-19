@@ -6,6 +6,7 @@ namespace Porthorian\PDOWrapper\Models;
 
 use \PDO;
 use \PDOStatement;
+use \Iterator;
 use Porthorian\PDOWrapper\Interfaces\QueryInterface;
 use Porthorian\PDOWrapper\Models\DBResult;
 
@@ -31,9 +32,9 @@ class QueryResult implements QueryInterface
 
 	/**
 	* Get the value of whatever is stored inside $results
-	* @return mixed Array|DBResult - Iterator/Countable data
+	* @return mixed Iterator - Iterator/Countable data
 	*/
-	public function getResults()
+	public function getResults() : Iterator
 	{
 		return $this->results;
 	}

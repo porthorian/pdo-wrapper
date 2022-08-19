@@ -5,39 +5,37 @@ declare(strict_types=1);
 namespace Porthorian\PDOWrapper;
 
 use \PDO;
+use \PDOStatement;
 use \PDOException;
 use Porthorian\PDOWrapper\Interfaces\DatabaseInterface;
 use Porthorian\PDOWrapper\Interfaces\QueryInterface;
-use Porthorian\PDOWrapper\DBPool;
 use Porthorian\PDOWrapper\Exception\DatabaseException;
 use Porthorian\PDOWrapper\Exception\InvalidConfigException;
 use Porthorian\PDOWrapper\Models\QueryResult;
+use Porthorian\PDOWrapper\Models\DatabaseModel;
 
 class DatabasePDO implements DatabaseInterface
 {
 	/**
-	* Houses the PDO Object to make all sql related actions.
-	*/
-	protected $pdo;
-
+	 * Connection to the Database
+	 */
+	protected ?PDO $pdo;
 	/**
-	* Houses the PDOStatement Object.
+	* The current query being acted on in the object.
 	*/
-	protected $query;
+	protected PDOStatement $query;
 
-	protected string $dbname;
+	protected DatabaseModel $model;
 
-	public function __construct(string $dbname, int $timeout = 1)
+	public function __construct(DatabaseModel $model, int $timeout = 1)
 	{
-		$this->dbname = $dbname;
-		try
-		{
-			$this->connectPDO($timeout);
-		}
-		catch (DatabaseException)
-		{
-			$this->connectPDO($timeout + 2);
-		}
+		$this->model = $model;
+	}
+
+	public function connect(int $timeout = 1) : self
+	{
+		$this->connectPDO($timeout);
+		return $this;
 	}
 
 	/**
@@ -86,7 +84,7 @@ class DatabasePDO implements DatabaseInterface
 		}
 		catch (PDOException $e)
 		{
-			throw new DatabaseException($e->getMessage());
+			throw new DatabaseException($e->getMessage(), $e);
 		}
 
 		return $result;
@@ -98,7 +96,7 @@ class DatabasePDO implements DatabaseInterface
 	* If you are in a transaction this will return 0
 	* @return string|int
 	*/
-	public function getLastInsertID()
+	public function getLastInsertID() : string|int
 	{
 		return $this->pdo->lastInsertId();
 	}
@@ -178,18 +176,10 @@ class DatabasePDO implements DatabaseInterface
 	*/
 	private function connectPDO(int $timeout = 1) : bool
 	{
-		$databases = DBPool::getDatabases();
-		if (!isset($databases[$this->dbname]))
-		{
-			throw new InvalidConfigException('No Mysql Configuration set for this Database: ' . $this->dbname);
-		}
-
-		$database = $databases[$this->dbname];
-
-		$dsn = 'mysql:host=' . $database->getHost() . ';dbname=' . $database->getDBName() . ';charset=' . $database->getCharset();
+		$dsn = $this->model->getDSN();
 		try
 		{
-			$this->pdo = new PDO($dsn, $database->getUser(), $database->getPassword(), [
+			$this->pdo = new PDO($dsn, $this->model->getUser(), $this->model->getPassword(), [
 				PDO::ATTR_TIMEOUT          => $timeout, //Seconds
 				PDO::ATTR_EMULATE_PREPARES => false,
 				PDO::ATTR_ERRMODE          => PDO::ERRMODE_EXCEPTION
@@ -198,7 +188,7 @@ class DatabasePDO implements DatabaseInterface
 		catch (PDOException $e)
 		{
 			$this->disconnect();
-			throw new DatabaseException($e->getMessage());
+			throw new DatabaseException('PDO Connection failed', $e);
 		}
 		return true;
 	}
@@ -240,7 +230,7 @@ class DatabasePDO implements DatabaseInterface
 	{
 		if (!$this->isConnected())
 		{
-			throw new DatabaseException($this->dbname . ' is no longer connected');
+			throw new DatabaseException($this->model->getDBName() . ' is no longer connected');
 		}
 		return $this->query->execute();
 	}

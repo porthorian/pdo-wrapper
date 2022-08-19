@@ -4,59 +4,60 @@ declare(strict_types=1);
 
 namespace Porthorian\PDOWrapper\Tests\Suite;
 
-use PHPUnit\Framework\TestCase;
+use Porthorian\PDOWrapper\Tests\DBTest;
 use Porthorian\PDOWrapper\DBPool;
-use Porthorian\PDOWrapper\Exception\DatabaseException;
+use Porthorian\PDOWrapper\DBFactory;
+use Porthorian\PDOWrapper\Interfaces\DatabaseInterface;
 use Porthorian\PDOWrapper\Models\DatabaseModel;
+use Porthorian\PDOWrapper\Exception\DatabaseException;
+use Porthorian\PDOWrapper\Exception\InvalidConfigException;
 
-class DBPoolTest extends TestCase
+class DBPoolTest extends DBTest
 {
 	public function testConnectDatabase()
 	{
-		$this->markTestSkipped('Incomplete');
+		$this->assertNull(DBPool::connectDatabase(self::TEST_DB));
+		$this->assertTrue(DBPool::isDatabaseConnectionAvailable(self::TEST_DB));
+
+		$db_model = new DatabaseModel('random', '126', '324324', '343434');
+		$pool = new DBPool($db_model);
+
+		$this->expectException(DatabaseException::class);
+		$pool->connect();
 	}
 
 	public function testDisconnectDatabase()
 	{
-		$this->markTestSkipped('Incomplete');
+		$this->assertNull(DBPool::disconnectDatabase(self::TEST_DB));
+
+		$this->assertFalse(DBPool::isDatabaseConnectionAvailable(self::TEST_DB));
 	}
 
 	public function testGetDBI()
 	{
-		$this->markTestSkipped('Incomplete');
+		$this->testConnectDatabase();
+		$dbi = DBPool::getDBI(self::TEST_DB);
+		$this->assertInstanceOf(DatabaseInterface::class, $dbi);
 	}
 
 	public function testIsDatabaseConnectionAvailable()
 	{
-		$this->markTestSkipped('Incomplete');
+		$this->testConnectDatabase();
+		$this->assertTrue(DBPool::isDatabaseConnectionAvailable(self::TEST_DB));
+		$this->testDisconnectDatabase();
+		$this->assertFalse(DBPool::isDatabaseConnectionAvailable(self::TEST_DB));
 	}
 
-	public function testGetPoolErrors()
+	public function testGetPools()
 	{
-		$this->markTestSkipped('Incomplete');
-	}
+		$this->assertInstanceOf(DBPool::class, DBPool::getPools(self::TEST_DB));
 
-	public function testAddPoolCred()
-	{
-		$db_name = 'test';
-		$model = new DatabaseModel($db_name, '127.0.0.1', 'test_user', 'test_password');
-
-		$this->assertNull(DBPool::addPoolCred($model));
-	}
-
-	/**
-	 * @depends testAddPoolCred
-	 */
-	public function testGetPoolCreds()
-	{
-		$this->assertInstanceOf(DatabaseModel::class, DBPool::getPoolCreds('test'));
-
-		$creds = DBPool::getPoolCreds();
+		$creds = DBPool::getPools();
 		$this->assertIsArray($creds);
 		$this->assertNotEmpty($creds);
 		$this->assertCount(1, $creds);
 
-		$this->expectException(DatabaseException::class);
-		DBPool::getPoolCreds('unknown');
+		$this->expectException(InvalidConfigException::class);
+		DBPool::getPools('unknown');
 	}
 }

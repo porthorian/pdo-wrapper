@@ -4,53 +4,106 @@ declare(strict_types=1);
 
 namespace Porthorian\PDOWrapper;
 
+use \Exception;
+use Porthorian\PDOWrapper\Interfaces\DatabaseInterface;
 use Porthorian\PDOWrapper\Models\DatabaseModel;
 use Porthorian\PDOWrapper\Exception\DatabaseException;
+use Porthorian\PDOWrapper\Exception\InvalidConfigException;
 
 class DBPool
 {
 	/**
-	* Stores our database connections throughout the request.
-	* Allows for multiple databases to be accessible.
-	*/
-	private static array $db_pool = [];
-
-	/**
-	 * @var DatabaseModel[]
+	 * Stores our database connections throughout the request.
+	 * Allows for multiple databases to be accessible.
 	 */
-	private static array $db_pool_creds = [];
+	private static array $db_pool_instances = [];
 
-	/**
-	* Stores our pool errors related to the database connection
-	*/
-	private static array $db_pool_errors = [];
+	////
+	// Public methods
+	////
+
+	private DatabaseModel $model;
+	private ?DatabaseInterface $connection = null;
+
+	public function __construct(DatabaseModel $model)
+	{
+		$this->model = $model;
+	}
+
+	public function connect(int $timeout = 1) : void
+	{
+		$this->connection = null; // Wipe the existing connection if there is one.
+
+		try
+		{
+			$pdo = DBFactory::create($this->getDatabaseModel());
+			try
+			{
+				$pdo->connect($timeout);
+			}
+			catch (DatabaseException)
+			{
+				$pdo->connect($timeout + 2);
+			}
+
+			if (!$pdo->isConnected())
+			{
+				throw new DatabaseException('Failed to validate connection to the database.');
+			}
+			$this->connection = $pdo;
+		}
+		catch (Exception $e)
+		{
+			throw new DatabaseException('Failed to connect to database', $e);
+		}
+	}
+
+	public function disconnect() : void
+	{
+		if ($this->connection === null)
+		{
+			return;
+		}
+
+		if ($this->connection->isConnected())
+		{
+			$this->connection->disconnect();
+		}
+
+		$this->connection = null;
+	}
+
+	public function isConnectionAvailable() : bool
+	{
+		return $this->connection !== null;
+	}
+
+	public function getDatabaseModel() : DatabaseModel
+	{
+		return $this->model;
+	}
+
+	public function getConnection() : ?DatabaseInterface
+	{
+		return $this->connection;
+	}
+
+	////
+	// Public static methods
+	////
 
 	/**
 	* @param $database - Connect to selected database.
 	* @return bool
 	*/
-	public static function connectDatabase(string $database) : bool
+	public static function connectDatabase(string $database, int $timeout = 1) : void
 	{
 		if (static::isDatabaseConnectionAvailable($database))
 		{
 			static::disconnectDatabase($database);
 		}
 
-		try
-		{
-			$pdo = new DatabasePDO($database);
-			if ($pdo->isConnected())
-			{
-				static::$db_pool[$database] = $pdo;
-				return true;
-			}
-		}
-		catch (DatabaseException $e)
-		{
-			static::addPoolError($e->getMessage(), $database);
-		}
-
-		return false;
+		(static::$db_pool_instances[$database] ?? null)->connect($timeout);
 	}
 
 	/**
@@ -59,28 +112,19 @@ class DBPool
 	*/
 	public static function disconnectDatabase(string $database) : void
 	{
-		if (static::isDatabaseConnectionAvailable($database))
-		{
-			$pdo = static::$db_pool[$database];
-			if ($pdo->isConnected())
-			{
-				$pdo->disconnect();
-			}
-		}
-
-		unset(static::$db_pool[$database]);
+		(static::$db_pool_instances[$database] ?? null)?->disconnect();
 	}
 
 	/**
-	* @return DatabasePDO|null on failure
+	* @return DatabaseInterface|null on failure
 	*/
-	public static function getDBI(string $database) : ?DatabasePDO
+	public static function getDBI(string $database) : ?DatabaseInterface
 	{
 		if (!static::isDatabaseConnectionAvailable($database))
 		{
 			static::connectDatabase($database);
 		}
-		return static::$db_pool[$database] ?? null;
+		return (static::$db_pool_instances[$database] ?? null)?->getConnection();
 	}
 
 	/**
@@ -89,21 +133,12 @@ class DBPool
 	*/
 	public static function isDatabaseConnectionAvailable(string $database) : bool
 	{
-		return isset(static::$db_pool[$database]);
-	}
-
-	/**
-	* Gets all the errors from the DBPool
-	* @param $database - Optional - get selected database errors.
-	* @return array
-	*/
-	public static function getPoolErrors(string $database = '') : array
-	{
-		if ($database != '')
+		if (!isset(static::$db_pool_instances[$database]))
 		{
-			return static::$db_pool_errors[$database] ?? [];
+			return false;
 		}
-		return static::$db_pool_errors;
+
+		return static::$db_pool_instances[$database]->isConnectionAvailable();
 	}
 
 	/**
@@ -111,36 +146,37 @@ class DBPool
 	 * @throws InvalidConfigException
 	 * @return void
 	 */
-	public static function addPoolCred(DatabaseModel $model) : void
+	public static function addPool(DatabaseModel $model) : void
 	{
-		static::$db_pool_creds[$model->getDBName()] = $model;
+		static::$db_pool_instances[$model->getDBName()] = new DBPool($model);
+	}
+
+	/**
+	 * Remove the database pool.
+	 * @return void
+	 */
+	public static function removePool(string $database) : void
+	{
+		unset(static::$db_pool_instances[$database]);
 	}
 
 	/**
 	 * Get all the database pools with credentials
 	 * @throws DatabaseException
-	 * @return DatabaseModel[]|DatabaseModel
+	 * @return DBPool[]|DBPool
 	 */
-	public static function getPoolCreds(string $database = '') : array|DatabaseModel
+	public static function getPools(string $database = '') : array|DBPool
 	{
 		if ($database != '')
 		{
-			if (!isset(static::$db_pool_creds[$database]))
+			if (!isset(static::$db_pool_instances[$database]))
 			{
-				throw new DatabaseException('Pool credentials not found.');
+				throw new InvalidConfigException('Database pool not found.');
 			}
 
-			return static::$db_pool_creds[$database];
+			return static::$db_pool_instances[$database];
 		}
-		return static::$db_pool_creds;
-	}
 
-	/**
-	* @param $message - Message to add to DBPool::error
-	* @return void
-	*/
-	private static function addPoolError(string $message, string $database) : void
-	{
-		static::$db_pool_errors[$database][] = $message;
+		return static::$db_pool_instances;
 	}
 }

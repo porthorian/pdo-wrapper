@@ -4,12 +4,14 @@ declare(strict_types=1);
 
 namespace Porthorian\PDOWrapper\Interfaces;
 
+use Porthorian\PDOWrapper\Models\DatabaseModel;
+
 interface DatabaseInterface
 {
 	/**
 	* @param $dbname - The database schema to use.
 	*/
-	public function __construct(string $dbname);
+	public function __construct(DatabaseModel $model);
 
 	/**
 	* Do we have an Object connected?
@@ -28,7 +30,7 @@ interface DatabaseInterface
 	* Executes an SQL prepared statement
 	* @param $sql - The SQL Statement to execute
 	* @param $values - The values to bind corresponding question marks to.
-	* @return bool
+	* @return QueryInterface
 	*/
 	public function query(string $sql, array $values = []) : QueryInterface;
 
@@ -36,7 +38,7 @@ interface DatabaseInterface
 	* Returns the ID of the last inserted row, or the last value from a sequence object
 	* @return string|int
 	*/
-	public function getLastInsertID();
+	public function getLastInsertID() : string|int;
 
 	/**
 	* Start our transaction
