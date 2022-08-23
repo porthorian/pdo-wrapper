@@ -8,7 +8,7 @@ class DatabaseLib
 {
 	/**
 	* @param $table - The table you wanna generate the insert sql for
-	* @param $params - array('column_name' => $value)
+	* @param $params - ['column_name' => $value]
 	* @return string
 	*/
 	public static function generateInsertSQL(string $table, array $params) : string
@@ -36,8 +36,8 @@ class DatabaseLib
 
 	/**
 	* @param $table - The table you wanna generate the update sql for
-	* @param $set_params - array('column_name' => $value)
-	* @param $where_params - array('column_name' => $value)
+	* @param $set_params - ['column_name' => $value]
+	* @param $where_params - ['column_name' => $value]
 	* @param $out_prepared - All the values in number index array keys array($value, $value1, $value2)
 	* @return string
 	*/
@@ -53,8 +53,8 @@ class DatabaseLib
 
 	/**
 	* @param $table - The table you wanna generate delete sql for
-	* @param $where_params - array('column_name' => $value)
-	* @param $out_prepared - All the values in number index array keys array($value, $value1, $value2)
+	* @param $where_params - ['column_name' => $value]
+	* @param $out_prepared - All the values in number index array keys [$value, $value1, $value2]
 	* @return string
 	*/
 	public static function generateDeleteSQL(string $table, array $where_params, array &$out_prepared) : string

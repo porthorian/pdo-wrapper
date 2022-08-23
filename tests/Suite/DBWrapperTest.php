@@ -18,7 +18,7 @@ class DBWrapperTest extends DBTest
 		parent::setUp();
 		DBPool::connectDatabase(self::TEST_DB);
 
-		DBWrapper::factory('CREATE TABLE test(
+		DBWrapper::factory('CREATE TABLE IF NOT EXISTS test(
 			KEYID INT(10) UNSIGNED PRIMARY KEY AUTO_INCREMENT,
 			name VARCHAR(255) NOT NULL
 		)');
@@ -26,7 +26,7 @@ class DBWrapperTest extends DBTest
 
 	public function tearDown() : void
 	{
-		DBWrapper::factory('DROP TABLE test');
+		DBWrapper::factory('TRUNCATE TABLE test');
 		parent::tearDown();
 	}
 
@@ -131,7 +131,12 @@ class DBWrapperTest extends DBTest
 
 	public function testInsert()
 	{
-		$this->markTestSkipped('Incomplete');
+		$last_insert_id = DBWrapper::insert('test', ['name' => 'hello_world']);
+
+		$this->assertEquals(1, $last_insert_id);
+
+		$this->expectException(DatabaseException::class);
+		DBWrapper::insert('tes51141424', ['name' => 'hello_world']);
 	}
 
 	public function testUpdate()
@@ -141,7 +146,24 @@ class DBWrapperTest extends DBTest
 
 	public function testDelete()
 	{
-		$this->markTestSkipped('Incomplete');
+		$max = 10;
+		for ($i = 1; $i <= $max; $i++)
+		{
+			$last_insert_id = DBWrapper::insert('test', ['name' => 'hello_world']);
+		}
+
+		$count = DBWrapper::PSingle('SELECT COUNT(*) AS total FROM test')['total'];
+
+		$rows_affected = DBWrapper::delete('test', ['KEYID' => $last_insert_id]);
+		$this->assertEquals(1, $rows_affected);
+		$this->assertLessThan($count, DBWrapper::PSingle('SELECT COUNT(*) AS total FROM test')['total']);
+
+		$rows_affected = DBWrapper::delete('test', ['name' => 'hello_world']);
+		// Minus the row we had already deleted before. So a total of MAX - 1 records should be affected.
+		$this->assertEquals($max - 1, $rows_affected);
+
+		$this->expectException(DatabaseException::class);
+		DBWrapper::delete('test5254254', ['KEYID' => $last_insert_id]);
 	}
 
 	public function testStartTransaction()
