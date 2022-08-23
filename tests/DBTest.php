@@ -15,8 +15,7 @@ class DBTest extends TestCase
 	public function setUp() : void
 	{
 		$model = new DatabaseModel(self::TEST_DB, getenv('DB_HOST'), 'root', 'test_password');
-		$model->setDSN($model->getDSN().';port='.getenv('DB_PORT'));
-		var_dump($model);
+		$model->setPort((int)getenv('DB_PORT'));
 		$this->assertNull(DBPool::addPool($model));
 	}
 

@@ -12,7 +12,9 @@ class DatabaseModel
 	protected string $password;
 	protected string $charset;
 
-	protected string $dsn;
+	protected ?string $dsn = null;
+
+	protected int $port = 3306;
 
 	public function __construct(string $dbname, string $host, string $user, string $password, string $charset = 'UTF8')
 	{
@@ -22,7 +24,7 @@ class DatabaseModel
 		$this->setPassword($password);
 		$this->setCharset($charset);
 
-		$this->setDSN('mysql:host=' . $this->getHost() . ';dbname=' . $this->getDBName() . ';charset=' . $this->getCharset());
+
 	}
 
 	public function getDBName() : string
@@ -47,7 +49,15 @@ class DatabaseModel
 	}
 	public function getDSN() : string
 	{
+		if ($this->dsn === null)
+		{
+			$this->setDSN('mysql:host=' . $this->getHost() . ';port='.$this->getPort().';dbname=' . $this->getDBName() . ';charset=' . $this->getCharset());
+		}
 		return $this->dsn;
+	}
+	public function getPort() : int
+	{
+		return $this->port;
 	}
 
 	// Setters
@@ -74,5 +84,9 @@ class DatabaseModel
 	public function setDSN(string $dsn) : void
 	{
 		$this->dsn = $dsn;
+	}
+	public function setPort(int $port) : void
+	{
+		$this->port = $port;
 	}
 }
