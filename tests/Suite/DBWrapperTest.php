@@ -193,18 +193,34 @@ class DBWrapperTest extends DBTest
 		DBWrapper::delete('test5254254', ['KEYID' => $last_insert_id]);
 	}
 
-	public function testStartTransaction()
+	/**
+	 * @depends testInsert
+	 */
+	public function testTransaction()
 	{
-		$this->markTestSkipped('Incomplete');
+		$sql = 'SELECT COUNT(*) AS total FROM test';
+		$count = DBWrapper::PSingle($sql)['total'];
+		DBWrapper::startTransaction();
+		DBWrapper::insert('test', ['name' => 'transaction']);
+		DBWrapper::rollbackTransaction();
+
+		$this->assertEquals($count, DBWrapper::PSingle($sql)['total']);
+
+		DBWrapper::startTransaction();
+		DBWrapper::insert('test', ['name' => 'transaction']);
+		DBWrapper::commitTransaction();
+
+		$this->assertGreaterThan($count, DBWrapper::PSingle($sql)['total']);
+
+		$this->expectException(DatabaseException::class);
+		$this->expectExceptionMessage('Unable to start a new transaction as there is already one that exists.');
+		DBWrapper::startTransaction();
+		DBWrapper::startTransaction();
 	}
 
-	public function testRollbackTransaction()
+	public function testQstr()
 	{
-		$this->markTestSkipped('Incomplete');
-	}
-
-	public function testQuote()
-	{
-		$this->markTestSkipped('Incomplete');
+		$string = DBWrapper::qstr("'DROP TABLE test;");
+		$this->assertEquals("'\'DROP TABLE test;'", $string);
 	}
 }

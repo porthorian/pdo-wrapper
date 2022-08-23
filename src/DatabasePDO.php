@@ -31,10 +31,27 @@ class DatabasePDO implements DatabaseInterface
 		$this->model = $model;
 	}
 
-	public function connect(int $timeout = 1) : self
+	/**
+	 * @param $timeout - Optional - Number of seconds for a timeout to occur.
+	 * @throws DatabaseException
+	 * @return void
+	*/
+	public function connect(int $timeout = 1) : void
 	{
-		$this->connectPDO($timeout);
-		return $this;
+		$dsn = $this->model->getDSN();
+		try
+		{
+			$this->pdo = new PDO($dsn, $this->model->getUser(), $this->model->getPassword(), [
+				PDO::ATTR_TIMEOUT          => $timeout, //Seconds
+				PDO::ATTR_EMULATE_PREPARES => false,
+				PDO::ATTR_ERRMODE          => PDO::ERRMODE_EXCEPTION
+			]);
+		}
+		catch (PDOException $e)
+		{
+			$this->disconnect();
+			throw new DatabaseException('PDO Connection failed', $e);
+		}
 	}
 
 	/**
@@ -167,30 +184,6 @@ class DatabasePDO implements DatabaseInterface
 	////
 	// Private Routines
 	////
-
-	/**
-	* @param $dsn - The connection string to pass to PDO.
-	* @param $timeout - Optional - Number of seconds for a timeout to occur.
-	* @return bool
-	*/
-	private function connectPDO(int $timeout = 1) : bool
-	{
-		$dsn = $this->model->getDSN();
-		try
-		{
-			$this->pdo = new PDO($dsn, $this->model->getUser(), $this->model->getPassword(), [
-				PDO::ATTR_TIMEOUT          => $timeout, //Seconds
-				PDO::ATTR_EMULATE_PREPARES => false,
-				PDO::ATTR_ERRMODE          => PDO::ERRMODE_EXCEPTION
-			]);
-		}
-		catch (PDOException $e)
-		{
-			$this->disconnect();
-			throw new DatabaseException('PDO Connection failed', $e);
-		}
-		return true;
-	}
 
 	/**
 	* Binds a value to a corresponding question mark placeholder in the SQL statement that was used to prepare the statement.

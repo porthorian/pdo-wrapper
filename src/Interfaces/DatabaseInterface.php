@@ -14,6 +14,12 @@ interface DatabaseInterface
 	public function __construct(DatabaseModel $model);
 
 	/**
+	 * Initiate the connection from the database model to the mysql server
+	 * @return void
+	 */
+	public function connect(int $timeout = 1) : void;
+
+	/**
 	* Do we have an Object connected?
 	* @return bool
 	*/
