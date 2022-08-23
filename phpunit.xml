@@ -24,4 +24,17 @@
             <directory>tests/Suite</directory>
         </testsuite>
     </testsuites>
+
+    <coverage cacheDirectory=".phpunit.cache/code-coverage"
+              processUncoveredFiles="true">
+        <report>
+            <html outputDirectory=".phpunit.cache/html"/>
+            <clover outputFile=".phpunit.cache/clover.xml" />
+            <text outputFile="php://stdout"/>
+        </report>
+
+        <include>
+            <directory suffix=".php">src</directory>
+        </include>
+    </coverage>
 </phpunit>

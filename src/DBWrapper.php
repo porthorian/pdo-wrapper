@@ -7,9 +7,25 @@ namespace Porthorian\PDOWrapper;
 use Porthorian\PDOWrapper\Models\DBResult;
 use Porthorian\PDOWrapper\Interfaces\DatabaseInterface;
 use Porthorian\PDOWrapper\Interfaces\QueryInterface;
+use Porthorian\PDOWrapper\Util\DatabaseLib;
 
 class DBWrapper
 {
+	private static ?string $DEFAULT_DB = null;
+
+	/**
+	 * Set the default database for all querys done via this wrapper.
+	 * @return void
+	 */
+	public static function setDefaultDB(string $database) : void
+	{
+		static::$DEFAULT_DB = $database;
+	}
+
+	/**
+	 * Executes your SQL query than returns a query interface object that can be used in its buffered state.
+	 * @return QueryInterface
+	 */
 	public static function factory(string $sql, array $params = [], ?string $database = null) : QueryInterface
 	{
 		$pool = self::getDBPool($database);
@@ -80,25 +96,30 @@ class DBWrapper
 		$pool = self::getDBPool($database);
 
 		$query = $pool->query($sql);
-		$out_count = $pool->rowCount();
+		$out_count = $query->rowCount();
 
 		return $query->fetchAllResults();
 	}
 
-	public static function insert(string $table, array $params, &$last_insert_id = 0, ?string $database = null) : bool
+	/**
+	 * @return string|int - The last inserted id that was done.
+	 */
+	public static function insert(string $table, array $params, ?string $database = null) : string|int
 	{
 		$pool = self::getDBPool($database);
 
 		$query = $pool->query(DatabaseLib::generateInsertSQL($table, $params), $params);
 		if (!$query->isInitialized())
 		{
-			return false;
+			throw new DatabaseException('Query object failed to initialize and is not set.');
 		}
-		$last_insert_id = $pool->getLastInsertID();
-		return true;
+		return $pool->getLastInsertID();
 	}
 
-	public static function update(string $table, array $set_params, array $where_params, ?string $database = null) : bool
+	/**
+	 * @return int - The amount of rows that were affected.
+	 */
+	public static function update(string $table, array $set_params, array $where_params, ?string $database = null) : int
 	{
 		$pool = self::getDBPool($database);
 
@@ -108,12 +129,16 @@ class DBWrapper
 		$query = $pool->query($sql, $prepared);
 		if (!$query->isInitialized())
 		{
-			return false;
+			throw new DatabaseException('Query object failed to initialize and is not set.');
 		}
-		return true;
+
+		return $query->rowCount();
 	}
 
-	public static function delete(string $table, array $where_params, ?string $database = null) : bool
+	/**
+	 * @return int - The amount of rows that were affected.
+	 */
+	public static function delete(string $table, array $where_params, ?string $database = null) : int
 	{
 		$pool = self::getDBPool($database);
 
@@ -123,9 +148,9 @@ class DBWrapper
 		$query = $pool->query($sql, $prepared);
 		if (!$query->isInitialized())
 		{
-			return false;
+			throw new DatabaseException('Query object failed to initialize and is not set.');
 		}
-		return true;
+		return $query->rowCount();
 	}
 
 	/**
@@ -135,9 +160,7 @@ class DBWrapper
 	*/
 	public static function startTransaction(?string $database = null) : bool
 	{
-		$pool = self::getDBPool($database);
-
-		return $pool->beginTransaction();
+		return  self::getDBPool($database)->beginTransaction();
 	}
 
 	/**
@@ -147,9 +170,7 @@ class DBWrapper
 	*/
 	public static function commitTransaction(?string $database = null) : bool
 	{
-		$pool = self::getDBPool($database);
-
-		return $pool->commitTransaction();
+		return self::getDBPool($database)->commitTransaction();
 	}
 
 	/**
@@ -159,21 +180,27 @@ class DBWrapper
 	*/
 	public static function rollbackTransaction(?string $database = null) : bool
 	{
-		$pool = self::getDBPool($database);
-
-		return $pool->rollbackTransaction();
+		return self::getDBPool($database)->rollbackTransaction();
 	}
 
-	public static function quote(string $value) : ?string
+	/**
+	 * Quote a string to be escaped to avoid sql injection
+	 * @return null|string - The escaped string on success.
+	 */
+	public static function qstr(string $value) : ?string
 	{
-		$pool = self::getDBPool(null);
-
-		return $pool->quote($value);
+		return self::getDBPool(null)->quote($value);
 	}
 
 	private static function getDBPool(?string $database = null) : DatabaseInterface
 	{
 		$error_message = 'Database pool connection does not exist.';
+
+		if ($database === null && static::$DEFAULT_DB !== null)
+		{
+			$database = static::$DEFAULT_DB;
+		}
+
 		if ($database === null)
 		{
 			$pool = array_values(DBPool::getPools())[0] ?? null;
@@ -181,6 +208,8 @@ class DBWrapper
 			{
 				throw new DatabaseException($error_message);
 			}
+
+			static::setDefaultDB($pool->getDatabaseModel()->getDBName());
 			return $pool->getConnection();
 		}
 
