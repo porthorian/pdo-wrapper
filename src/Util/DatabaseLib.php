@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace Porthorian\PDOWrapper\Util;
 
 class DatabaseLib
@@ -15,7 +17,7 @@ class DatabaseLib
 		$values = '';
 		$count_params = count($params);
 		$counter = 0;
-		foreach ($params as $column => $value)
+		foreach (array_keys($params) as $column)
 		{
 			$columns .= $column;
 			$values .= '?';
