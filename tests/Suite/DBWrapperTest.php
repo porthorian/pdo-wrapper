@@ -139,9 +139,36 @@ class DBWrapperTest extends DBTest
 		DBWrapper::insert('tes51141424', ['name' => 'hello_world']);
 	}
 
+	/**
+	 * @depends testInsert
+	 */
 	public function testUpdate()
 	{
-		$this->markTestSkipped('Incomplete');
+		$string = 'hello_world';
+		$max = 10;
+		for ($i = 1; $i <= $max; $i++)
+		{
+			$last_insert_id = DBWrapper::insert('test', ['name' => $string]);
+		}
+
+		$rows_affected = DBWrapper::update('test', ['name' => 'hello'], ['KEYID' => $last_insert_id]);
+		$this->assertEquals(1, $rows_affected);
+		$single = DBWrapper::PSingle('SELECT * FROM test WHERE KEYID = ?', [$last_insert_id]);
+		$this->assertNotEquals($string, $single['name']);
+
+		$query_string = 'new_hello';
+		$rows_affected = DBWrapper::update('test', ['name' => $query_string], ['name' => 'hello_world']);
+		$this->assertEquals($max - 1, $rows_affected);
+		$counter = 0;
+		foreach (DBWrapper::PResult('SELECT * FROM test WHERE name = ?', [$query_string]) as $result)
+		{
+			$this->assertNotEquals($string, $result['name']);
+			$counter++;
+		}
+		$this->assertEquals($rows_affected, $counter);
+
+		$this->expectException(DatabaseException::class);
+		DBWrapper::update('test5452', ['asdasdasd' => '142424'], ['asdfasfd' => 'noop']);
 	}
 
 	public function testDelete()
