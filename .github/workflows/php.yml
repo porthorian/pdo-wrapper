@@ -33,11 +33,12 @@ jobs:
       mysql:
         image: mysql:latest
         ports:
-          - 3306/tcp
+          - 3306:3306
         env:
           MYSQL_ALLOW_EMPTY_PASSWORD: false
           MYSQL_ROOT_PASSWORD: test_password
           MYSQL_DATABASE: test
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=10s --health-retries=10
     steps:
       - uses: actions/checkout@v2
       - uses: actions/cache@v2
@@ -51,5 +52,11 @@ jobs:
         run: composer lint
       - name: Run 8.1 Test Suite
         run: php8.1 vendor/bin/phpunit --no-coverage
+        env:
+          DB_HOST: mysql
+          DB_PORT: ${{ job.services.mysql.ports['3306'] }}
       - name: Run 8.0 Test Suite
         run: php8.0 vendor/bin/phpunit --no-coverage
+        env:
+          DB_HOST: mysql
+          DB_PORT: ${{ job.services.mysql.ports['3306'] }}
