@@ -198,7 +198,7 @@ class DatabasePDO implements DatabaseInterface
 	* @param $param - Which question mark should we bind this value to.
 	* @param $value - The value that is getting binded to the question mark
 	*/
-	private function bind(int $param, $value) : bool
+	private function bind(int $param, mixed $value) : bool
 	{
 		switch (true)
 		{

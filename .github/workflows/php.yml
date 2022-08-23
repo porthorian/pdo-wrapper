@@ -34,7 +34,7 @@ jobs:
         image: mysql:latest
         ports:
           - 3306/tcp
-        environment:
+        env:
           MYSQL_ALLOW_EMPTY_PASSWORD: false
           MYSQL_ROOT_PASSWORD: test_password
           MYSQL_DATABASE: test

@@ -14,8 +14,7 @@ class DBTest extends TestCase
 
 	public function setUp() : void
 	{
-		$model = new DatabaseModel(self::TEST_DB, '127.0.0.1', 'test_user', 'test_password');
-		$model->setDSN('sqlite::memory:');
+		$model = new DatabaseModel(self::TEST_DB, '127.0.0.1', 'root', 'test_password');
 		$this->assertNull(DBPool::addPool($model));
 	}
 

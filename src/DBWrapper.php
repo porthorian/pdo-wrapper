@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace Porthorian\PDOWrapper;
 
-use Porthorian\PDOWrapper\Exception\InvalidConfigException;
 use Porthorian\PDOWrapper\Models\DBResult;
 use Porthorian\PDOWrapper\Interfaces\DatabaseInterface;
 use Porthorian\PDOWrapper\Interfaces\QueryInterface;
@@ -174,15 +173,21 @@ class DBWrapper
 
 	private static function getDBPool(?string $database = null) : DatabaseInterface
 	{
+		$error_message = 'Database pool connection does not exist.';
 		if ($database === null)
 		{
-			$database = (DBPool::getPoolCreds()[0])?->getDBName();
+			$pool = array_values(DBPool::getPools())[0] ?? null;
+			if (!$pool?->isConnectionAvailable())
+			{
+				throw new DatabaseException($error_message);
+			}
+			return $pool->getConnection();
 		}
 
 		$pool = DBPool::getDBI($database);
 		if ($pool === null)
 		{
-			throw new InvalidConfigException('Database pool connection does not exist.');
+			throw new DatabaseException($error_message);
 		}
 		return $pool;
 	}

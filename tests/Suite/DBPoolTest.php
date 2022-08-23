@@ -22,7 +22,7 @@ class DBPoolTest extends DBTest
 		$pool = new DBPool($db_model);
 
 		$this->expectException(DatabaseException::class);
-		$pool->connect();
+		$pool->connect(1);
 	}
 
 	public function testDisconnectDatabase()
@@ -34,16 +34,16 @@ class DBPoolTest extends DBTest
 
 	public function testGetDBI()
 	{
-		$this->testConnectDatabase();
+		$this->assertNull(DBPool::connectDatabase(self::TEST_DB));
 		$dbi = DBPool::getDBI(self::TEST_DB);
 		$this->assertInstanceOf(DatabaseInterface::class, $dbi);
 	}
 
 	public function testIsDatabaseConnectionAvailable()
 	{
-		$this->testConnectDatabase();
+		$this->assertNull(DBPool::connectDatabase(self::TEST_DB));
 		$this->assertTrue(DBPool::isDatabaseConnectionAvailable(self::TEST_DB));
-		$this->testDisconnectDatabase();
+		$this->assertNull(DBPool::disconnectDatabase(self::TEST_DB));
 		$this->assertFalse(DBPool::isDatabaseConnectionAvailable(self::TEST_DB));
 	}
 

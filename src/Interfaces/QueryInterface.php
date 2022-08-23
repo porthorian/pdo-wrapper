@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace Porthorian\PDOWrapper\Interfaces;
 
 use \PDOStatement;
-use Porthorian\PDOWrapper\Model\DBResult;
+use Porthorian\PDOWrapper\Models\DBResult;
 
 interface QueryInterface
 {
