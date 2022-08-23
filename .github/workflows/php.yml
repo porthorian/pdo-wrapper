@@ -31,13 +31,13 @@ jobs:
     needs: build
     services:
       mysql:
-      image: mysql:latest
-      ports:
-        - 3306/tcp
-      environment:
-        MYSQL_ALLOW_EMPTY_PASSWORD: false
-        MYSQL_ROOT_PASSWORD: test_password
-        MYSQL_DATABASE: test
+        image: mysql:latest
+        ports:
+          - 3306/tcp
+        environment:
+          MYSQL_ALLOW_EMPTY_PASSWORD: false
+          MYSQL_ROOT_PASSWORD: test_password
+          MYSQL_DATABASE: test
     steps:
       - uses: actions/checkout@v2
       - uses: actions/cache@v2
