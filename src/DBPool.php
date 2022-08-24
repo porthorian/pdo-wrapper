@@ -94,7 +94,7 @@ class DBPool
 
 	/**
 	* @param $database - Connect to selected database.
-	* @return bool
+	* @return void
 	*/
 	public static function connectDatabase(string $database, int $timeout = 1) : void
 	{

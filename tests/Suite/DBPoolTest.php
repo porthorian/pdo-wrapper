@@ -18,6 +18,9 @@ class DBPoolTest extends DBTest
 		$this->assertNull(DBPool::connectDatabase(self::TEST_DB));
 		$this->assertTrue(DBPool::isDatabaseConnectionAvailable(self::TEST_DB));
 
+		// Reinitialize the connection.
+		$this->assertNull(DBPool::connectDatabase(self::TEST_DB));
+
 		$db_model = new DatabaseModel('random', '126', '324324', '343434');
 		$pool = new DBPool($db_model);
 
@@ -37,6 +40,10 @@ class DBPoolTest extends DBTest
 		$this->assertNull(DBPool::connectDatabase(self::TEST_DB));
 		$dbi = DBPool::getDBI(self::TEST_DB);
 		$this->assertInstanceOf(DatabaseInterface::class, $dbi);
+
+		DBPool::disconnectDatabase(self::TEST_DB);
+		$dbi = DBPool::getDBI(self::TEST_DB);
+		$this->assertInstanceOf(DatabaseInterface::class, $dbi);
 	}
 
 	public function testIsDatabaseConnectionAvailable()
@@ -45,6 +52,8 @@ class DBPoolTest extends DBTest
 		$this->assertTrue(DBPool::isDatabaseConnectionAvailable(self::TEST_DB));
 		$this->assertNull(DBPool::disconnectDatabase(self::TEST_DB));
 		$this->assertFalse(DBPool::isDatabaseConnectionAvailable(self::TEST_DB));
+
+		$this->assertFalse(DBPool::isDatabaseConnectionAvailable('random_id'));
 	}
 
 	public function testGetPools()
