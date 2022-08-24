@@ -16,7 +16,6 @@ class DBWrapperTest extends DBTest
 	public function setUp() : void
 	{
 		parent::setUp();
-		DBPool::connectDatabase(self::TEST_DB);
 
 		DBWrapper::factory('CREATE TABLE test(
 			KEYID INT(10) UNSIGNED PRIMARY KEY AUTO_INCREMENT,
@@ -222,5 +221,11 @@ class DBWrapperTest extends DBTest
 	{
 		$string = DBWrapper::qstr("'DROP TABLE test;");
 		$this->assertEquals("'\'DROP TABLE test;'", $string);
+	}
+
+	public function testUnknownDefaultDB()
+	{
+		$this->expectException(DatabaseException::class);
+		DBWrapper::setDefaultDB('wrong-db');
 	}
 }

@@ -161,6 +161,15 @@ class DBPool
 	}
 
 	/**
+	 * Check if the database pool exists.
+	 * @return bool
+	 */
+	public static function doesPoolExist(string $database) : bool
+	{
+		return isset(static::$db_pool_instances[$database]);
+	}
+
+	/**
 	 * Get all the database pools with credentials
 	 * @throws DatabaseException
 	 * @return DBPool[]|DBPool

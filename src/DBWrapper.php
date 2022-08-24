@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Porthorian\PDOWrapper;
 
+use Porthorian\PDOWrapper\Exception\DatabaseException;
 use Porthorian\PDOWrapper\Models\DBResult;
 use Porthorian\PDOWrapper\Interfaces\DatabaseInterface;
 use Porthorian\PDOWrapper\Interfaces\QueryInterface;
@@ -15,10 +16,16 @@ class DBWrapper
 
 	/**
 	 * Set the default database for all querys done via this wrapper.
+	 * @throws DatabaseException
 	 * @return void
 	 */
 	public static function setDefaultDB(string $database) : void
 	{
+		if (!DBPool::doesPoolExist($database))
+		{
+			throw new DatabaseException('Database pool does not exist, make sure to add the pool before setting it as the default db.');
+		}
+
 		static::$DEFAULT_DB = $database;
 	}
 
