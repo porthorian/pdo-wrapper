@@ -89,4 +89,21 @@ class QueryResult implements QueryInterface
 	{
 		return $this->count;
 	}
+
+	/**
+	 * Requery the prepared statement again to get updated results.
+	 * @return void.
+	 */
+	public function requery() : void
+	{
+		if (!$this->isInitialized())
+		{
+			return;
+		}
+
+		$this->query->closeCursor();
+		$this->query->execute();
+
+		$this->count = $this->query->rowCount();
+	}
 }

@@ -46,4 +46,10 @@ interface QueryInterface
 	* @return int
 	*/
 	public function rowCount() : int;
+
+	/**
+	 * Requery the prepared statement again to get updated results.
+	 * @return void.
+	 */
+	public function requery() : void;
 }

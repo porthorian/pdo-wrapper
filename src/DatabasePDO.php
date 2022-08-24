@@ -105,7 +105,7 @@ class DatabasePDO implements DatabaseInterface
 		}
 		catch (PDOException $e)
 		{
-			throw new DatabaseException('Failed to execute query to '.$this->model->getDBName(), $e);
+			throw new DatabaseException('Failed to execute query against schema '.$this->model->getDBName(), $e);
 		}
 
 		return $result;

@@ -194,8 +194,6 @@ class DBWrapper
 
 	private static function getDBPool(?string $database = null) : DatabaseInterface
 	{
-		$error_message = 'Database pool connection does not exist.';
-
 		if ($database === null && static::$DEFAULT_DB !== null)
 		{
 			$database = static::$DEFAULT_DB;
@@ -206,7 +204,7 @@ class DBWrapper
 			$pool = array_values(DBPool::getPools())[0] ?? null;
 			if (!$pool?->isConnectionAvailable())
 			{
-				throw new DatabaseException($error_message);
+				$pool->connect();
 			}
 
 			static::setDefaultDB($pool->getDatabaseModel()->getDBName());
@@ -216,7 +214,7 @@ class DBWrapper
 		$pool = DBPool::getDBI($database);
 		if ($pool === null)
 		{
-			throw new DatabaseException($error_message);
+			throw new DatabaseException('Database pool connection does not exist.');
 		}
 		return $pool;
 	}

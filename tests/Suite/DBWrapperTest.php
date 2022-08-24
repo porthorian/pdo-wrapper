@@ -18,7 +18,7 @@ class DBWrapperTest extends DBTest
 		parent::setUp();
 		DBPool::connectDatabase(self::TEST_DB);
 
-		DBWrapper::factory('CREATE TABLE IF NOT EXISTS test(
+		DBWrapper::factory('CREATE TABLE test(
 			KEYID INT(10) UNSIGNED PRIMARY KEY AUTO_INCREMENT,
 			name VARCHAR(255) NOT NULL
 		)');
@@ -26,7 +26,7 @@ class DBWrapperTest extends DBTest
 
 	public function tearDown() : void
 	{
-		DBWrapper::factory('TRUNCATE TABLE test');
+		DBWrapper::factory('DROP TABLE test');
 		parent::tearDown();
 	}
 
