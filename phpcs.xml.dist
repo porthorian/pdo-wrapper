@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <ruleset name="Standard">
-	<description>The VultrPhp coding standards.</description>
+	<description>The Porthorian coding standards</description>
 	<arg name="tab-width" value="4"/>
 	<arg name="extensions" value="php"/>
 
