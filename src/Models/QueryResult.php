@@ -34,7 +34,7 @@ class QueryResult implements QueryInterface
 	* Get the value of whatever is stored inside $results
 	* @return mixed Iterator - Iterator/Countable data
 	*/
-	public function getResults() : Iterator
+	public function getResults() : Iterator|array
 	{
 		return $this->results;
 	}
