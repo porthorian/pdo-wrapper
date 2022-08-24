@@ -73,7 +73,7 @@ interface DatabaseInterface
 	/**
 	* Escape a string to be compliant with a sql statement.
 	* @param $value - That you wanna ensure no sql escaping.
-	* @return string|null on failure
+	* @return string
 	*/
-	public function quote(string $value) : ?string;
+	public function quote(string $value) : string;
 }

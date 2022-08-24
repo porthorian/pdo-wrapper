@@ -18,7 +18,7 @@ class DatabasePDO implements DatabaseInterface
 	/**
 	 * Connection to the Database
 	 */
-	protected ?PDO $pdo;
+	protected ?PDO $pdo = null;
 	/**
 	* The current query being acted on in the object.
 	*/
@@ -26,7 +26,7 @@ class DatabasePDO implements DatabaseInterface
 
 	protected DatabaseModel $model;
 
-	public function __construct(DatabaseModel $model, int $timeout = 1)
+	public function __construct(DatabaseModel $model)
 	{
 		$this->model = $model;
 	}
@@ -83,6 +83,11 @@ class DatabasePDO implements DatabaseInterface
 	public function query(string $sql, array $values = []) : QueryInterface
 	{
 		$result = new QueryResult(null);
+		if (!$this->isConnected())
+		{
+			throw new DatabaseException($this->model->getDBName() . ' is not connected.');
+		}
+
 		try
 		{
 			$this->query = $this->pdo->prepare($sql);
@@ -100,7 +105,7 @@ class DatabasePDO implements DatabaseInterface
 		}
 		catch (PDOException $e)
 		{
-			throw new DatabaseException($e->getMessage(), $e);
+			throw new DatabaseException('Failed to execute query to '.$this->model->getDBName(), $e);
 		}
 
 		return $result;
@@ -165,9 +170,9 @@ class DatabasePDO implements DatabaseInterface
 	/**
 	* Escape a string to be compliant with a sql statement.
 	* @param $value - That you wanna ensure no sql escaping.
-	* @return string|null on failure
+	* @return string
 	*/
-	public function quote(string $value) : ?string
+	public function quote(string $value) : string
 	{
 		$quote = $this->pdo->quote($value);
 
@@ -176,7 +181,7 @@ class DatabasePDO implements DatabaseInterface
 		*/
 		if ($quote === false)
 		{
-			return null;
+			throw new DatabaseException('Driver does not support escaped quoting.');
 		}
 		return $quote;
 	}
