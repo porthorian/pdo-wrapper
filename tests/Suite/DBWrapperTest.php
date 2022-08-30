@@ -30,7 +30,7 @@ class DBWrapperTest extends DBTest
 
 	public function testFactory()
 	{
-		DBWrapper::factory('INSERT INTO test(name) VALUES(?)', ['hello_world']);
+		DBWrapper::factory('INSERT INTO test(name) VALUES(?)', ['hello_world'], DBWrapper::getDefaultDB());
 
 		$query = DBWrapper::factory('SELECT * FROM test');
 		$this->assertInstanceOf(QueryInterface::class, $query);

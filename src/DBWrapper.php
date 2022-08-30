@@ -29,6 +29,15 @@ class DBWrapper
 		static::$DEFAULT_DB = $database;
 	}
 
+	public static function getDefaultDB() : string
+	{
+		if (static::$DEFAULT_DB === null)
+		{
+			static::initializeDefaultDB();
+		}
+		return static::$DEFAULT_DB;
+	}
+
 	/**
 	 * Executes your SQL query than returns a query interface object that can be used in its buffered state.
 	 * @return QueryInterface
@@ -208,14 +217,9 @@ class DBWrapper
 
 		if ($database === null)
 		{
-			$pool = array_values(DBPool::getPools())[0] ?? null;
-			if (!$pool?->isConnectionAvailable())
-			{
-				$pool->connect();
-			}
+			static::initializeDefaultDB();
 
-			static::setDefaultDB($pool->getDatabaseModel()->getDBName());
-			return $pool->getConnection();
+			$database = static::$DEFAULT_DB;
 		}
 
 		$pool = DBPool::getDBI($database);
@@ -224,5 +228,16 @@ class DBWrapper
 			throw new DatabaseException('Database pool connection does not exist.');
 		}
 		return $pool;
+	}
+
+	private static function initializeDefaultDB() : void
+	{
+		$pool = array_values(DBPool::getPools())[0] ?? null;
+		if (!$pool?->isConnectionAvailable())
+		{
+			$pool->connect();
+		}
+
+		static::setDefaultDB($pool->getDatabaseModel()->getDBName());
 	}
 }
