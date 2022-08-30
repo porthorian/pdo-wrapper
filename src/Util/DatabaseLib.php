@@ -69,6 +69,27 @@ class DatabaseLib
 		return 'DELETE FROM ' . static::escapeSchemaName($table) . ' WHERE ' . static::generateParameters($where_params, $out_prepared);
 	}
 
+	/**
+	 * Escape a database table name or a column name.
+	 * @param $name - Any underscored name for a column, table, or db schema.
+	 * @return string
+	 */
+	public static function escapeSchemaName(string $name) : string
+	{
+		if (empty($name))
+		{
+			throw new InvalidArgumentException('Name must not be empty.');
+		}
+
+		$match = preg_match('/^(?![0-9])[A-Za-z0-9_]*$/', $name);
+		if (!$match)
+		{
+			throw new InvalidArgumentException('Name may contain only alphanumerics or underscores, and may not begin with a digit.');
+		}
+
+		return '`'.$name.'`';
+	}
+
 	private static function generateParameters(array $params, array &$out_prepared, string $delimiter = 'AND') : string
 	{
 		$parameters = '';
@@ -85,21 +106,5 @@ class DatabaseLib
 		}
 
 		return $parameters;
-	}
-
-	private static function escapeSchemaName(string $name) : string
-	{
-		if (empty($name))
-		{
-			throw new InvalidArgumentException('Name must not be empty.');
-		}
-
-		$match = preg_match('/^(?![0-9])[A-Za-z0-9_]*$/', $name);
-		if (!$match)
-		{
-			throw new InvalidArgumentException('Name may contain only alphanumerics or underscores, and may not begin with a digit.');
-		}
-
-		return '`'.$name.'`';
 	}
 }
