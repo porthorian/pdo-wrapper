@@ -119,7 +119,18 @@ class DatabasePDO implements DatabaseInterface
 	*/
 	public function getLastInsertID() : string|int
 	{
-		return $this->pdo->lastInsertId();
+		$last_id = $this->pdo->lastInsertId();
+		if (is_numeric($last_id) && is_string($last_id))
+		{
+			return (int) $last_id;
+		}
+
+		if ($last_id === false)
+		{
+			$last_id = 0;
+		}
+
+		return $last_id;
 	}
 
 	/**
