@@ -56,9 +56,9 @@ class DBResult implements Iterator, Countable
 	/**
 	* Lets grab the current record.
 	* Do not use this function, use getRecord instead.
-	* @return array
+	* @return mixed
 	*/
-	public function current() : array
+	public function current() : mixed
 	{
 		return $this->getRecord();
 	}
