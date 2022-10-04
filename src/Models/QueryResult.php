@@ -13,6 +13,7 @@ use Porthorian\PDOWrapper\Models\DBResult;
 class QueryResult implements QueryInterface
 {
 	private $query;
+	private string $query_string;
 	private int $count = 0;
 	protected $results = [];
 
@@ -23,6 +24,17 @@ class QueryResult implements QueryInterface
 		{
 			$this->count = $query->rowCount();
 		}
+	}
+	
+	public function withQueryString(string $query_string) : self
+	{
+		$this->query_string = $query_string;
+		return $this;
+	}
+
+	public function getQueryString() : string
+	{
+		return $this->query_string;
 	}
 
 	public function isInitialized() : bool

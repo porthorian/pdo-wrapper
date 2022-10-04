@@ -4,12 +4,21 @@ declare(strict_types=1);
 
 namespace Porthorian\PDOWrapper\Interfaces;
 
-use \PDOStatement;
 use Porthorian\PDOWrapper\Models\DBResult;
 
 interface QueryInterface
 {
-	public function __construct(?PDOStatement $query);
+	/**
+	 * Set the unprepared query
+		 * @return self
+		 */
+	public function withQueryString(string $query_string) : self;
+
+	/**
+		 * Get the the query string that is unprepared.
+		 * @return string
+		 */
+	public function getQueryString() : string;
 
 	/**
 	* Whether the query was successful or not.

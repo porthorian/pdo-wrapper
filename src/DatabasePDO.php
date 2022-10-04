@@ -82,7 +82,7 @@ class DatabasePDO implements DatabaseInterface
 	*/
 	public function query(string $sql, array $values = []) : QueryInterface
 	{
-		$result = new QueryResult(null);
+		$result = (new QueryResult(null))->withQueryString($sql);
 		if (!$this->isConnected())
 		{
 			throw new DatabaseException($this->model->getDBName() . ' is not connected.');
@@ -100,7 +100,7 @@ class DatabasePDO implements DatabaseInterface
 
 			if ($this->execute())
 			{
-				return new QueryResult($this->query);
+				return (new QueryResult($this->query))->withQueryString($sql);
 			}
 		}
 		catch (PDOException $e)
